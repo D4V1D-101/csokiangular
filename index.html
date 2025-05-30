@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Csokik listája</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body{
+            margin: 0;
+            padding: 0;
+        }
+        .raktaron {
+            background-color: #d4edda;
+        }
+        .kartya{
+            padding: 10px;
+        }
+        .nincs-raktaron {
+            background-color: #f8d7da;
+        }
+    </style>
+</head>
+
+<body ng-controller="CsokiCtrl" ng-app="csokiShop">
+
+    <div class="container-fluid mt-4">
+        <div class="form-group">
+            <input type="text" class="form-control" placeholder="Keresés név alapján..." ng-model="kereses">
+        </div>
+        <div class="row">
+            <div class="col-lg-4 col-md-6 sm-12 kartya" ng-repeat="csoki in csokik | filter: { nev: kereses }">
+                <div class="p-3 rounded shadow-sm" ng-class="csoki.raktaron == 0 ? 'nincs-raktaron' : 'raktaron'">
+                    <h5>{{ csoki.nev }}</h5>
+                    <p>Ár: {{ csoki.ara }} Ft</p>
+                    <p>{{ csoki.raktaron == 0 ? 'Nincs raktáron' : 'Van raktáron' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var app = angular.module('csokiShop', []);
+        app.controller('CsokiCtrl', function($scope, $http) {
+            $http.get("csoki.json")
+                .then(function(response) {
+                    $scope.csokik = response.data;
+                    console.log($scope.csokik);
+                });
+        });
+    </script>
+</body>
+
+</html>

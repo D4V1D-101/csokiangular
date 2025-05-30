@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="hu" ng-app="csokiApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Csokik</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .csoki-card {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            color: white;
+        }
+        
+        .raktaron {
+            background-color: #28a745 !important;
+        }
+        
+        .nincs-raktaron {
+            background-color: #dc3545 !important;
+        }
+        
+        .search-container {
+            margin-bottom: 30px;
+        }
+        
+        .csoki-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .csoki-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 992px) and (min-width: 769px) {
+            .csoki-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body ng-controller="CsokiController" class="container mt-4">
+    <h1 class="text-center mb-4">Csokik</h1>
+    
+    <!-- Kereső mező -->
+    <div class="search-container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="text" 
+                           class="form-control" 
+                           placeholder="Keresés csoki név alapján..." 
+                           ng-model="kereses">
+                    <span class="input-group-text">
+                        <i class="bi bi-search">🔍</i>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Csokik megjelenítése -->
+    <div class="csoki-grid">
+        <div ng-repeat="csoki in csokik | filter:kereses" 
+             class="csoki-card"
+             ng-class="csoki.raktaron == '1' ? 'raktaron' : 'nincs-raktaron'">
+            <h4>{{csoki.nev}}</h4>
+            <p><strong>Ára: {{csoki.ara}} Ft</strong></p>
+            <p ng-if="csoki.raktaron > '0'">
+                <span class="badge bg-light text-success">Van raktáron</span>
+            </p>
+            <p ng-if="csoki.raktaron == '0'">
+                <span class="badge bg-light text-danger">Nincs raktáron</span>
+            </p>
+        </div>
+    </div>
+    
+    <!-- Üzenet ha nincs találat -->
+    <div ng-if="(csokik | filter:kereses).length === 0 && csokik.length > 0" 
+         class="text-center mt-4">
+        <div class="alert alert-info">
+            Nincs találat a keresési feltételre: "{{kereses}}"
+        </div>
+    </div>
+    
+    <!-- Betöltési üzenet -->
+    <div ng-if="csokik.length === 0" class="text-center mt-4">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Betöltés...</span>
+        </div>
+        <p class="mt-2">Adatok betöltése...</p>
+    </div>
+
+    <script>
+        // AngularJS alkalmazás definiálása
+        var app = angular.module('csokiApp', []);
+        
+        // Kontroller definiálása
+        app.controller('CsokiController', ['$scope', '$http', function($scope, $http) {
+            $scope.csokik = [];
+            $scope.kereses = '';
+            
+            // Adatok betöltése a JSON fájlból
+            $http.get('csoki.json')
+                .then(function(response) {
+                    $scope.csokik = response.data;
+                    console.log('Betöltött adatok:', $scope.csokik);
+                })
+                .catch(function(error) {
+                    console.error('Hiba az adatok betöltése során:', error);
+                    
+                  
+                    
+                    console.log('Példa adatok használata:', $scope.csokik);
+                    console.warn('A csokik.json fájl nem található, példa adatokat használunk.');
+                });
+        }]);
+    </script>
+</body>
+</html>
